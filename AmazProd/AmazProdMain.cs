@@ -25,7 +25,7 @@ namespace AmazProd
                 List<string> URL = getUrls(mainUrl);
                 List<string> Name = getNames();
                 List<Department> departments = new List<Department>();
-                for (int i = 0; i < 22; i++)
+                for (int i = 0; i < URL.Count; i++)
                 {
                     Department newDepartment = new Department
                     {
@@ -38,7 +38,24 @@ namespace AmazProd
                 foreach (Department departmend in departments)
                 {
                     driver.Navigate().GoToUrl(departmend.URL);
-                    var products = driver.FindElement(By.CssSelector("#mainResults > ul > li"));
+                    var products = driver.FindElements(By.CssSelector("#mainResults > ul > li"));
+                    foreach(var product in products)
+                    {
+                        product.FindElement(By.CssSelector(".a-spacing-mini  .a-spacing-none .s-access-detail-page")).Click();
+                        string prodcutTitle = driver.FindElement(By.Id("productTitle")).Text;
+                        string productPrice;
+                        try {
+                            productPrice = driver.FindElement(By.ClassName("offer-price")).Text;
+                        }
+                        catch(Exception e)
+                        {
+                            productPrice = "noStock";
+                        }
+                        var haveShipmentForUAE = false;
+                        var currentUrl = driver.Url;
+                        driver.Navigate().Back();
+                        Console.WriteLine("Ürün bilgileri:" + prodcutTitle + productPrice + currentUrl, haveShipmentForUAE);
+                    }
                     var page = driver.FindElement(By.Id("pagn"));
                 }
                 Console.ReadKey();
@@ -52,18 +69,11 @@ namespace AmazProd
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dautomotive-intl-ship",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dbaby-products-intl-ship",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dbeauty-intl-ship",
-                mainUrl + "s?i=stripbooks-intl-ship&ref=nb_sb_noss",
                 mainUrl + "s?i=computers-intl-ship&ref=nb_sb_noss",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Delectronics-intl-ship",
-                mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dfashion-womens-intl-ship",
-                mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dfashion-mens-intl-ship",
-                mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dfashion-girls-intl-ship",
-                mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dfashion-boys-intl-ship&field-keywords=",
-                mainUrl + "s?i=deals-intl-ship&ref=nb_sb_noss",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dhpc-intl-ship",
                 mainUrl + "s?i=kitchen-intl-ship&ref=nb_sb_noss",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dindustrial-intl-ship",
-                mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dluggage-intl-ship",
                 mainUrl + "s?i=pets-intl-ship&ref=nb_sb_noss",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dsoftware-intl-ship",
                 mainUrl + "s/ref=nb_sb_noss?url=search-alias%3Dsporting-intl-ship",
@@ -81,18 +91,11 @@ namespace AmazProd
                 "Automotive",
                 "Baby",
                 "Beauty & Personal Care",
-                "Books",
                 "Computers",
                 "Electronics",
-                "Women's Fashion",
-                "Man's Fashion",
-                "Girl's Fashion",
-                "Boy's Fashion",
-                "Deals",
                 "Health & Household",
                 "Home & Kitchen",
                 "Industrial & Scientific",
-                "Luggage",
                 "Pet Supplies",
                 "Software",
                 "Sports & Outdoors",
