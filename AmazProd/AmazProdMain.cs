@@ -4,7 +4,7 @@ using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Support.Events;
 using System.Collections.Generic;
-
+using System.Linq;
 namespace AmazProd
 {
     class AmazProdMain
@@ -41,7 +41,11 @@ namespace AmazProd
                     var products = driver.FindElements(By.CssSelector("#mainResults > ul > li"));
                     foreach(var product in products)
                     {
-                        product.FindElement(By.CssSelector(".a-spacing-mini  .a-spacing-none .s-access-detail-page")).Click();
+                        string productURL = product.FindElement(By.CssSelector(".a-spacing-mini  .a-spacing-none .s-access-detail-page")).GetAttribute("href");
+                        string newTabScript= "window.open('" + productURL + "', '_blank	');";
+                        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                        js.ExecuteScript(newTabScript);
+                        driver.SwitchTo().Window(driver.WindowHandles.Last());
                         string prodcutTitle = driver.FindElement(By.Id("productTitle")).Text;
                         string productPrice;
                         try {
@@ -52,12 +56,12 @@ namespace AmazProd
                             productPrice = "noStock";
                         }
                         var haveShipmentForUAE = false;
-                        var currentUrl = driver.Url;
-                        driver.Navigate().Back();
-                        Console.WriteLine("Ürün bilgileri:" + prodcutTitle + productPrice + currentUrl, haveShipmentForUAE);
+                        driver.Close();
+                        driver.SwitchTo().Window(driver.WindowHandles.First());
+                        Console.WriteLine("Ürün bilgileri:" + prodcutTitle + productPrice + productURL, haveShipmentForUAE);
                     }
                     var page = driver.FindElement(By.Id("pagn"));
-                }
+                } 
                 Console.ReadKey();
             }
         }
