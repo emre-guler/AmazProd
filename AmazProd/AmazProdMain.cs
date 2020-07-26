@@ -46,19 +46,45 @@ namespace AmazProd
                         IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
                         js.ExecuteScript(newTabScript);
                         driver.SwitchTo().Window(driver.WindowHandles.Last());
-                        string prodcutTitle = driver.FindElement(By.Id("productTitle")).Text;
-                        string productPrice;
-                        try {
-                            productPrice = driver.FindElement(By.ClassName("offer-price")).Text;
+                        string productTitle = driver.FindElement(By.Id("productTitle")).Text;
+                        string seller = driver.FindElement(By.Id("bylineInfo")).Text;
+                        bool haveShipmentForUAE;
+                        try
+                        {
+                            if(driver.FindElement(By.Id("a-color-error")).Text != "This item cannot be shipped to your selected delivery location. Please choose a different delivery location.")
+                            {
+                                haveShipmentForUAE = true;
+                            }
+                            else
+                            {
+                                haveShipmentForUAE = false;
+                            }
+
                         }
                         catch(Exception e)
                         {
-                            productPrice = "noStock";
+                            haveShipmentForUAE = false;
                         }
-                        var haveShipmentForUAE = false;
+                        string productPrice;
+                        try
+                        {
+                            productPrice = driver.FindElement(By.ClassName("offer-price")).Text;
+                            if (productPrice == "Currently unavailable.")
+                            {
+                                haveShipmentForUAE = false;
+                                productPrice = "0";
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            productPrice = "noStock";
+                        };
+                        if (!String.IsNullOrEmpty(productURL) && !String.IsNullOrEmpty(productTitle) && String.IsNullOrEmpty(seller) && String.IsNullOrEmpty(productPrice) && haveShipmentForUAE)
+                        {
+
+                        }
                         driver.Close();
                         driver.SwitchTo().Window(driver.WindowHandles.First());
-                        Console.WriteLine("Ürün bilgileri:" + prodcutTitle + productPrice + productURL, haveShipmentForUAE);
                     }
                     var page = driver.FindElement(By.Id("pagn"));
                 } 
