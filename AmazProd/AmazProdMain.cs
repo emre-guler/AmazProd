@@ -5,6 +5,11 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Support.Events;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
+
 namespace AmazProd
 {
     class AmazProdMain
@@ -79,9 +84,17 @@ namespace AmazProd
                         {
                             productPrice = "noStock";
                         };
-                        if (!String.IsNullOrEmpty(productURL) && !String.IsNullOrEmpty(productTitle) && String.IsNullOrEmpty(seller) && String.IsNullOrEmpty(productPrice) && haveShipmentForUAE)
+                        if (!String.IsNullOrEmpty(productURL) && !String.IsNullOrEmpty(productTitle) && !String.IsNullOrEmpty(seller) && !String.IsNullOrEmpty(productPrice) && !haveShipmentForUAE)
                         {
+                            bool result = usptoCompanyControl(seller, driver);
+                            if(result)
+                            {
 
+                            }
+                            else
+                            {
+
+                            }
                         }
                         driver.Close();
                         driver.SwitchTo().Window(driver.WindowHandles.First());
@@ -89,6 +102,34 @@ namespace AmazProd
                     var page = driver.FindElement(By.Id("pagn"));
                 } 
                 Console.ReadKey();
+            }
+        }
+
+        static bool usptoCompanyControl(string companyName, IWebDriver driver)
+        {
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            string url = "http://tmsearch.uspto.gov/";
+            string newTabScript = "window.open('" + url + "', '_blank	');";
+            js.ExecuteScript(newTabScript);
+            driver.SwitchTo().Window(driver.WindowHandles.Last());
+            string currentUrl = driver.Url;
+            string newUrl = currentUrl.Replace("tess", "searchss");
+            driver.Navigate().GoToUrl(newUrl);
+            js.ExecuteScript("document.getElementsByName('p_s_PARA2')[0].value = '" + companyName + "';");
+            // Click event gelecek
+            string responseString = "";
+            // Sayfanın html'i gelecek
+            string pattern = "<h1>[^<>]*</h1>";
+            Regex rg = new Regex(pattern);
+            MatchCollection matchedTag = rg.Matches(responseString);
+            Console.WriteLine("Yea! There is match! \n" + matchedTag);
+            if (responseString == "")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
         static List<string> getUrls(string mainUrl)
