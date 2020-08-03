@@ -96,6 +96,7 @@ namespace AmazProd
 
                             }
                         }
+                        driver.SwitchTo().Window(driver.WindowHandles.Last());
                         driver.Close();
                         driver.SwitchTo().Window(driver.WindowHandles.First());
                     }
@@ -115,14 +116,17 @@ namespace AmazProd
             string currentUrl = driver.Url;
             string newUrl = currentUrl.Replace("tess", "searchss");
             driver.Navigate().GoToUrl(newUrl);
+            companyName = Regex.Replace(companyName, @"[^0-9a-zA-Z]+", "");
             js.ExecuteScript("document.getElementsByName('p_s_PARA2')[0].value = '" + companyName + "';");
-            // Click event gelecek
+            js.ExecuteScript("return document.getElementsByName('a_search')[0].remove();");
+            driver.FindElement(By.Name("a_search")).Click();
             string responseString = "";
             // Sayfanın html'i gelecek
             string pattern = "<h1>[^<>]*</h1>";
             Regex rg = new Regex(pattern);
             MatchCollection matchedTag = rg.Matches(responseString);
             Console.WriteLine("Yea! There is match! \n" + matchedTag);
+            driver.Close();
             if (responseString == "")
             {
                 return true;
