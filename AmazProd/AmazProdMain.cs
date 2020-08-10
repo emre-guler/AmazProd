@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
+using OpenQA.Selenium.Support.Extensions;
+using OpenQA.Selenium.Remote;
 
 namespace AmazProd
 {
@@ -17,6 +19,7 @@ namespace AmazProd
         static void Main(string[] args)
         {
             string mainUrl = "https://www.amazon.com/";
+            List<Product> confirmedProducts = new List<Product>();
             using (IWebDriver driver = new FirefoxDriver())
             {
                 // Configure-To-UnitedArabEmirates
@@ -89,11 +92,14 @@ namespace AmazProd
                             bool result = usptoCompanyControl(seller, driver);
                             if(result)
                             {
-
-                            }
-                            else
-                            {
-
+                                Product newProduct = new Product
+                                {
+                                     Name = productTitle,
+                                     Price = productPrice,
+                                     Seller = seller,
+                                     ProdcutURL = productURL
+                                };
+                                confirmedProducts.Add(newProduct);
                             }
                         }
                         driver.SwitchTo().Window(driver.WindowHandles.Last());
@@ -108,6 +114,7 @@ namespace AmazProd
 
         static bool usptoCompanyControl(string companyName, IWebDriver driver)
         {
+
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             string url = "http://tmsearch.uspto.gov/";
             string newTabScript = "window.open('" + url + "', '_blank	');";
@@ -120,20 +127,18 @@ namespace AmazProd
             js.ExecuteScript("document.getElementsByName('p_s_PARA2')[0].value = '" + companyName + "';");
             js.ExecuteScript("return document.getElementsByName('a_search')[0].remove();");
             driver.FindElement(By.Name("a_search")).Click();
-            string responseString = "";
-            // Sayfanın html'i gelecek
+            string responseString = js.ExecuteScript("return document.body.innerHTML;").ToString();
             string pattern = "<h1>[^<>]*</h1>";
             Regex rg = new Regex(pattern);
             MatchCollection matchedTag = rg.Matches(responseString);
-            Console.WriteLine("Yea! There is match! \n" + matchedTag);
             driver.Close();
-            if (responseString == "")
+            if (matchedTag.ToString() == "No TESS records were found to match the criteria of your query.")
             {
-                return true;
+                return false;
             }
             else
             {
-                return false;
+                return true;
             }
         }
         static List<string> getUrls(string mainUrl)
