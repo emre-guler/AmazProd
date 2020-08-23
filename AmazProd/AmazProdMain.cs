@@ -23,7 +23,7 @@ namespace AmazProd
             using (IWebDriver driver = new FirefoxDriver())
             {
                 // Configure-To-UnitedArabEmirates
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
                 driver.Navigate().GoToUrl(mainUrl);
                 driver.FindElement(By.ClassName("a-popover-trigger")).Click();
                 driver.FindElement(By.Id("GLUXCountryValue")).Click();
@@ -100,7 +100,7 @@ namespace AmazProd
                                      ProdcutURL = productURL
                                 };
                                 confirmedProducts.Add(newProduct);
-                            }
+                            }   
                         }
                         driver.SwitchTo().Window(driver.WindowHandles.Last());
                         driver.Close();
@@ -114,7 +114,7 @@ namespace AmazProd
 
         static bool usptoCompanyControl(string companyName, IWebDriver driver)
         {
-
+            companyName = controlCompanyName(companyName);
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             string url = "http://tmsearch.uspto.gov/";
             string newTabScript = "window.open('" + url + "', '_blank	');";
@@ -132,15 +132,34 @@ namespace AmazProd
             Regex rg = new Regex(pattern);
             MatchCollection matchedTag = rg.Matches(responseString);
             driver.Close();
-            if (matchedTag.ToString() == "No TESS records were found to match the criteria of your query.")
+            try
             {
+                if (matchedTag[0].Value == "<h3>No TESS records were found to match the criteria of your query.</h3>")
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } catch(Exception err)
+            {
+                Console.WriteLine(err);
                 return false;
             }
-            else
-            {
-                return true;
-            }
         }
+
+        static string controlCompanyName(string companyName)
+        {
+            // Remove "Visit The"
+            companyName.Replace("Visit The", "");
+            // Remove "Brand:"
+            companyName.Replace("Brand:", "");
+            // Remove "By"
+            companyName.Replace("by", "");
+            return companyName;
+        }
+
         static List<string> getUrls(string mainUrl)
         {
             List<string> URL = new List<string>
