@@ -44,7 +44,3 @@ This project is built using:
 - C# programming language
 - .NET platform
 - Standard C# coding conventions
-
-## License
-
-This project is proprietary and confidential. 
